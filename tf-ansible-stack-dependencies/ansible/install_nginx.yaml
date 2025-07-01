@@ -1,4 +1,3 @@
----
 - name: Install and Configure Nginx
   hosts: all
   become: yes
@@ -12,16 +11,17 @@
       set_fact:
         ansible_user: ec2-user
       when: ansible_os_family == "RedHat"
-  
+
   tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
     - name: Install Nginx
-      ansible.builtin.yum:
+      ansible.builtin.apt:
         name: nginx
-        state: present
-      when: ansible_os_family == "RedHat"
-      
-    - name: install nginx
-      apt: name=nginx state=latest
+        state: latest
       when: ansible_os_family == "Debian"
 
     - name: Create index.html
@@ -42,3 +42,4 @@
         name: nginx
         state: started
         enabled: yes
+      when: not ansible_check_mode
